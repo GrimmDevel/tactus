@@ -3,18 +3,19 @@ set -e
 
 VERSION=$(cat ./VERSION 2>/dev/null || echo "1.0.0")
 
-echo "=== Building Tactus v$VERSION ==="
-swift build -c release
+echo "=== Building Tactus v$VERSION (Universal Binary: arm64 + x86_64) ==="
+swift build -c release --triple arm64-apple-macosx
+swift build -c release --triple x86_64-apple-macosx
 
 APP_NAME="Tactus.app"
 BUNDLE_PATH="./build/$APP_NAME"
-EXECUTABLE_PATH=".build/release/Tactus"
 
 rm -rf "$BUNDLE_PATH"
 mkdir -p "$BUNDLE_PATH/Contents/MacOS"
 mkdir -p "$BUNDLE_PATH/Contents/Resources"
 
-cp "$EXECUTABLE_PATH" "$BUNDLE_PATH/Contents/MacOS/Tactus"
+lipo -create .build/arm64-apple-macosx/release/Tactus .build/x86_64-apple-macosx/release/Tactus -output "$BUNDLE_PATH/Contents/MacOS/Tactus"
+
 if [ -f "./AppIcon.icns" ]; then
     cp "./AppIcon.icns" "$BUNDLE_PATH/Contents/Resources/AppIcon.icns"
 fi
