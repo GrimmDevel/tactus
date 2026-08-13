@@ -29,6 +29,12 @@ jobs:
           chmod +x build.sh
           ./build.sh
 
+      - name: Read Version
+        id: get_version
+        run: |
+          VER=$(cat ./VERSION 2>/dev/null || echo "1.0.0")
+          echo "version=$VER" >> $GITHUB_OUTPUT
+
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -36,11 +42,11 @@ jobs:
           path: build/Tactus.dmg
 
       - name: Create GitHub Release
-        if: startsWith(github.ref, 'refs/tags/v') || github.event_name == 'workflow_dispatch'
         uses: softprops/action-gh-release@v2
         with:
           files: build/Tactus.dmg
-          name: Tactus ${{ github.ref_name }}
+          tag_name: v${{ steps.get_version.outputs.version }}
+          name: Tactus v${{ steps.get_version.outputs.version }}
           draft: false
           prerelease: false
           generate_release_notes: true
