@@ -1,0 +1,23 @@
+# Swift & SPM
+.build/
+build/
+Packages/
+*.xcodeproj
+*.xcworkspace
+
+# Agent Customizations
+.agents/
+
+# macOS System Files
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.swp
+*~
