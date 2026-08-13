@@ -122,6 +122,10 @@ struct ContentView: View {
             Label("Haptic Engine", systemImage: "waveform.path.badge.plus")
                 .font(.system(size: 14, weight: .bold, design: .rounded))
 
+            toggleRow("Launch at Login",
+                      subtitle: "Start Tactus automatically when logging into macOS",
+                      isOn: $settings.isLaunchAtLoginEnabled)
+
             toggleRow("Scroll Wheel Haptics",
                       subtitle: "Ratchet detent pulse when scrolling",
                       isOn: $settings.isScrollHapticsEnabled)
@@ -226,7 +230,8 @@ struct ContentView: View {
 
     private var footerBar: some View {
         HStack {
-            Text("Tactus v1.0")
+            let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
+            Text("Tactus v\(version)")
                 .font(.system(size: 10, weight: .medium, design: .rounded))
                 .foregroundStyle(.tertiary)
             Spacer()

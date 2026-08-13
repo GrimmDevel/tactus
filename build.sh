@@ -1,12 +1,14 @@
 #!/bin/bash
 set -e
 
-echo "=== Building Tactus ==="
+VERSION=$(cat ./VERSION 2>/dev/null || echo "1.0.0")
+
+echo "=== Building Tactus v$VERSION ==="
 swift build -c release
 
 APP_NAME="Tactus.app"
 BUNDLE_PATH="./build/$APP_NAME"
-EXECUTABLE_PATH=".build/release/TapticScroll"
+EXECUTABLE_PATH=".build/release/Tactus"
 
 rm -rf "$BUNDLE_PATH"
 mkdir -p "$BUNDLE_PATH/Contents/MacOS"
@@ -36,11 +38,11 @@ cat <<EOF > "$BUNDLE_PATH/Contents/Info.plist"
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.0</string>
+    <string>$VERSION</string>
     <key>LSMinimumSystemVersion</key>
     <string>26.0</string>
     <key>LSUIElement</key>
-    <false/>
+    <true/>
     <key>NSHighResolutionCapable</key>
     <true/>
 </dict>
@@ -49,4 +51,13 @@ EOF
 
 chmod +x "$BUNDLE_PATH/Contents/MacOS/Tactus"
 
-echo "=== Build Complete! → $BUNDLE_PATH ==="
+echo "=== Packaging Tactus.dmg ==="
+DMG_DIR="./build/dmg_tmp"
+rm -rf "$DMG_DIR" "./build/Tactus.dmg"
+mkdir -p "$DMG_DIR"
+cp -R "$BUNDLE_PATH" "$DMG_DIR/"
+ln -s /Applications "$DMG_DIR/Applications"
+hdiutil create -volname "Tactus" -srcfolder "$DMG_DIR" -ov -format UDZO "./build/Tactus.dmg"
+rm -rf "$DMG_DIR"
+
+echo "=== Build Complete! → ./build/Tactus.dmg ==="

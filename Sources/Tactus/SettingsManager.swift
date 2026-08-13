@@ -1,9 +1,17 @@
 import Foundation
 import Combine
+import ServiceManagement
 @preconcurrency import AppKit
 
 final class SettingsManager: ObservableObject {
     nonisolated(unsafe) static let shared = SettingsManager()
+
+    @Published var isLaunchAtLoginEnabled: Bool {
+        didSet {
+            UserDefaults.standard.set(isLaunchAtLoginEnabled, forKey: "isLaunchAtLoginEnabled")
+            updateLaunchAtLogin(enabled: isLaunchAtLoginEnabled)
+        }
+    }
 
     @Published var isScrollHapticsEnabled: Bool {
         didSet { UserDefaults.standard.set(isScrollHapticsEnabled, forKey: "isScrollHapticsEnabled") }
@@ -50,6 +58,7 @@ final class SettingsManager: ObservableObject {
     private init() {
         let defaults = UserDefaults.standard
         defaults.register(defaults: [
+            "isLaunchAtLoginEnabled": false,
             "isScrollHapticsEnabled": true,
             "isInertiaHapticsEnabled": true,
             "isClickHapticsEnabled": true,
@@ -62,6 +71,7 @@ final class SettingsManager: ObservableObject {
             "soundStyleRaw": 0
         ])
 
+        self.isLaunchAtLoginEnabled = SMAppService.mainApp.status == .enabled
         self.isScrollHapticsEnabled = defaults.bool(forKey: "isScrollHapticsEnabled")
         self.isInertiaHapticsEnabled = defaults.bool(forKey: "isInertiaHapticsEnabled")
         self.isClickHapticsEnabled = defaults.bool(forKey: "isClickHapticsEnabled")
@@ -75,6 +85,17 @@ final class SettingsManager: ObservableObject {
         self.soundStyleRaw = defaults.integer(forKey: "soundStyleRaw")
 
         checkAccessibilityPermissions()
+    }
+
+    private func updateLaunchAtLogin(enabled: Bool) {
+        do {
+            if enabled {
+                try SMAppService.mainApp.register()
+            } else {
+                try SMAppService.mainApp.unregister()
+            }
+        } catch {
+        }
     }
 
     func checkAccessibilityPermissions() {

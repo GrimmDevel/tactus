@@ -7,6 +7,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     let settings = SettingsManager.shared
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        NSApp.setActivationPolicy(.accessory)
+
         if let path = Bundle.main.path(forResource: "AppIconOriginal", ofType: "png"),
            let iconImage = NSImage(contentsOfFile: path) {
             NSApp.applicationIconImage = iconImage
@@ -54,6 +56,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         soundItem.state = settings.isSoundEnabled ? .on : .off
         menu.addItem(soundItem)
 
+        let loginItem = NSMenuItem(title: "Launch at Login", action: #selector(toggleLaunchAtLogin), keyEquivalent: "")
+        loginItem.target = self
+        loginItem.state = settings.isLaunchAtLoginEnabled ? .on : .off
+        menu.addItem(loginItem)
+
         menu.addItem(NSMenuItem.separator())
 
         let settingsItem = NSMenuItem(title: "Preferences…", action: #selector(showWindow), keyEquivalent: "s")
@@ -81,6 +88,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc func toggleSound() {
         settings.isSoundEnabled.toggle()
+        buildStatusBarMenu()
+    }
+
+    @objc func toggleLaunchAtLogin() {
+        settings.isLaunchAtLoginEnabled.toggle()
         buildStatusBarMenu()
     }
 
